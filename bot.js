@@ -129,12 +129,12 @@ import { generateKDAGraph, generateChampionChart } from './graphs.js';
 // Create Express app
 const app = express();
 app.use(express.json());
-app.use(express.static('public')); // Serve static files
+app.use(express.static('public')); // Serve static files FIRST
 
 // ========== REST API ENDPOINTS ==========
 
-// Health check endpoint
-app.get('/', (req, res) => {
+// Health check endpoint (only for /api requests, not root)
+app.get('/api', (req, res) => {
   res.json({
     status: '✅ League Roaster Bot is running!',
     mode: useWebhook ? 'webhook' : 'polling',
