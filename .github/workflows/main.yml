@@ -14,7 +14,7 @@ jobs:
       - name: Ping Render Service
         run: |
           echo "🔄 Pinging backend at $(date)..."
-          response=$(curl -s -o /dev/null -w https://riftrewind.onrender.com)
+          response=$(curl -s -o /dev/null -w https://qa-riftrewind.onrender.com/)
           
           if [ $response -eq 200 ]; then
             echo "✅ Backend responded with status $response"
