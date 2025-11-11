@@ -196,3 +196,28 @@ export function extractPlayerStats(matchData, puuid) {
     tripleKills: participant.tripleKills,
   };
 }
+
+// Get live match data (currently playing)
+export async function getLiveMatchData(puuid) {
+  try {
+    // Get summoner ID first
+    const summonerResponse = await axiosInstance.get(
+      `https://sea.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`
+    );
+    const summonerId = summonerResponse.data.id;
+
+    // Get live match data
+    const liveResponse = await axiosInstance.get(
+      `https://sea.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerId}`
+    );
+    
+    return liveResponse.data;
+  } catch (error) {
+    // 404 means player is not in a live game
+    if (error.response?.status === 404) {
+      return null;
+    }
+    console.error('Error fetching live match:', error.response?.data || error.message);
+    throw new Error('Could not fetch live match data');
+  }
+}

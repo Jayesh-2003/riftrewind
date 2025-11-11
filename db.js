@@ -45,3 +45,42 @@ export async function updateUserStats(telegramUserId, stats) {
     { returnDocument: 'after' }
   );
 }
+
+// Live session operations
+export async function saveLiveSession(telegramUserId, sessionData) {
+  const db = getDB();
+  return await db.collection('liveSessions').findOneAndUpdate(
+    { telegram_userId: telegramUserId },
+    {
+      $set: {
+        telegram_userId: telegramUserId,
+        ...sessionData,
+        createdAt: new Date(),
+      },
+    },
+    { upsert: true, returnDocument: 'after' }
+  );
+}
+
+export async function endLiveSession(telegramUserId) {
+  const db = getDB();
+  return await db.collection('liveSessions').findOneAndUpdate(
+    { telegram_userId: telegramUserId },
+    { $set: { endedAt: new Date(), active: false } },
+    { returnDocument: 'after' }
+  );
+}
+
+export async function findLiveSession(telegramUserId) {
+  const db = getDB();
+  return await db.collection('liveSessions').findOne({
+    telegram_userId: telegramUserId,
+  });
+}
+
+export async function getActiveLiveSessions() {
+  const db = getDB();
+  return await db.collection('liveSessions').find({
+    endedAt: { $exists: false },
+  }).toArray();
+}

@@ -212,3 +212,45 @@ Requirements:
     throw new Error('Failed to generate timeline roast');
   }
 }
+
+// Real-time event roast (mid-game)
+export async function roastLiveEvent(event, currentState, championName) {
+  try {
+    const eventText = `
+EVENT TYPE: ${event.type}
+CHAMPION: ${championName}
+CURRENT K/D/A: ${currentState.kills}/${currentState.deaths}/${currentState.assists}
+GOLD: ${currentState.gold}
+LEVEL: ${currentState.level}
+CS: ${currentState.cs}
+GAME TIME: ${Math.floor(currentState.gameDuration / 60)}m
+EVENT DATA: ${JSON.stringify(event.data)}
+    `;
+
+    const messages = [
+      {
+        role: 'user',
+        content: `YOU ARE A LIVE ESPORTS COMMENTATOR WHO IS ABSOLUTELY RUTHLESS AND BRUTAL. Your job is to give a SHORT, SHARP, DEVASTATING one-liner roast about what just happened MID-GAME.
+
+This is happening LIVE. Be IMMEDIATE. Be SAVAGE. Be ONE SENTENCE MAX.
+
+LIVE EVENT:
+${eventText}
+
+Requirements:
+- ONE LINE ONLY (15-20 words MAX)
+- Reference the specific event that just happened
+- Be BRUTAL and IMMEDIATE
+- Sound like a toxic chat member
+- Make it personal and cutting
+- NO emojis, just pure savagery`,
+      },
+    ];
+
+    const roast = await callGroqWithFallback(messages, 100);
+    return roast.trim();
+  } catch (error) {
+    console.error('Error calling Groq for live event roast:', error.message);
+    throw new Error('Failed to generate live event roast');
+  }
+}
