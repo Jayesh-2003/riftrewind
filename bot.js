@@ -7,14 +7,13 @@ import * as handlers from './handlers.js';
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
 
 // Determine if we're using webhook or polling
 const useWebhook = WEBHOOK_URL && WEBHOOK_URL.trim().length > 0;
 
-const botOptions = useWebhook
-  ? { webHook: { port: PORT } }
-  : { polling: true };
+// Bot options - webhook doesn't need port in options, express handles it
+const botOptions = { polling: !useWebhook };
 
 const bot = new TelegramBot(TOKEN, botOptions);
 
@@ -151,9 +150,23 @@ if (useWebhook) {
     }
   })();
   
-  // Start HTTP server
-  app.listen(PORT, () => {
+  // Start HTTP server with error handling
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Webhook server listening on port ${PORT}`);
+  });
+  
+  // Handle port already in use
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use!`);
+      console.error('   Options:');
+      console.error(`   1. Kill process on port ${PORT}`);
+      console.error(`   2. Set different PORT in environment`);
+      console.error(`   3. Use polling mode (set WEBHOOK_URL empty)`);
+      process.exit(1);
+    } else {
+      throw err;
+    }
   });
 } else {
   console.log('📡 Using polling mode (local development)');
