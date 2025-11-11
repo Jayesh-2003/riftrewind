@@ -2,6 +2,7 @@
 import * as db from './db.js';
 import * as api from './api.js';
 import * as ai from './ai.js';
+import * as live from './live.js';
 
 const userStates = new Map(); // Track user state for multi-step interactions
 
@@ -237,6 +238,7 @@ export async function handleHelpCommand(bot, chatId) {
     "*Available Commands:*\n" +
     "/start - Register your League account\n" +
     "/roast - Get roasted on your latest match\n" +
+    "/live - Track your current game LIVE 🎮\n" +
     "/analysis - Get detailed stats analysis with graphs\n" +
     "/help - Show this help message\n\n" +
     "The bot will roast your gaming name and your match performance! 🔥"
@@ -328,6 +330,56 @@ export async function handleAnalysisCommand(bot, chatId, userId) {
 
   } catch (error) {
     console.error('Error in handleAnalysisCommand:', error);
+    await bot.sendMessage(
+      chatId,
+      `❌ Error: ${error.message}`
+    );
+  }
+}
+
+export async function handleLiveCommand(bot, chatId, userId) {
+  try {
+    // Get user data
+    const user = await db.findUser(userId);
+
+    if (!user) {
+      await bot.sendMessage(
+        chatId,
+        "❌ You haven't registered yet! Use /start first."
+      );
+      return;
+    }
+
+    // Check if already tracking
+    const existingSession = Array.from(live.getActiveSessions()).find(
+      (s) => s.userId === userId
+    );
+
+    if (existingSession) {
+      await bot.sendMessage(
+        chatId,
+        "⚠️ You're already tracking a live match! Use /stop to stop tracking."
+      );
+      return;
+    }
+
+    // Start live tracking
+    await live.startLiveTracking(bot, chatId, userId, user.puuid);
+  } catch (error) {
+    console.error('Error in handleLiveCommand:', error);
+    await bot.sendMessage(
+      chatId,
+      `❌ Error: ${error.message}`
+    );
+  }
+}
+
+export async function handleStopLiveCommand(bot, chatId, userId) {
+  try {
+    await live.stopLiveTracking(bot, userId, false);
+    await bot.sendMessage(chatId, "⏹️ Live tracking stopped.");
+  } catch (error) {
+    console.error('Error in handleStopLiveCommand:', error);
     await bot.sendMessage(
       chatId,
       `❌ Error: ${error.message}`

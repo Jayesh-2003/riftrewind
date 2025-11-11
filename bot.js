@@ -4,6 +4,7 @@ import express from 'express';
 import TelegramBot from 'node-telegram-bot-api';
 import * as db from './db.js';
 import * as handlers from './handlers.js';
+import * as live from './live.js';
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
@@ -21,6 +22,7 @@ const bot = new TelegramBot(TOKEN, botOptions);
 bot.setMyCommands([
   { command: 'start', description: 'Register your League account' },
   { command: 'roast', description: 'Get roasted on your latest match' },
+  { command: 'live', description: 'Track your current game LIVE 🎮' },
   { command: 'analysis', description: 'Detailed match history analysis with graphs' },
   { command: 'help', description: 'Show help information' },
 ]);
@@ -87,6 +89,34 @@ bot.onText(/\/analysis/, async (msg) => {
     await handlers.handleAnalysisCommand(bot, chatId, userId);
   } catch (error) {
     console.error('Error handling /analysis:', error);
+    bot.sendMessage(chatId, '❌ Error: Could not process command');
+  }
+});
+
+// Handle /live command
+bot.onText(/\/live/, async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+  console.log(`📨 /live command from user ${userId}`);
+  
+  try {
+    await handlers.handleLiveCommand(bot, chatId, userId);
+  } catch (error) {
+    console.error('Error handling /live:', error);
+    bot.sendMessage(chatId, '❌ Error: Could not process command');
+  }
+});
+
+// Handle /stop command
+bot.onText(/\/stop/, async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+  console.log(`📨 /stop command from user ${userId}`);
+  
+  try {
+    await handlers.handleStopLiveCommand(bot, chatId, userId);
+  } catch (error) {
+    console.error('Error handling /stop:', error);
     bot.sendMessage(chatId, '❌ Error: Could not process command');
   }
 });
