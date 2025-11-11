@@ -1,0 +1,9 @@
+# Railway deployment config
+# This file tells Railway how to run your bot
+
+# Use Node.js runtime
+runtime = "node"
+
+# Start command
+[env]
+NODE_ENV = "production"

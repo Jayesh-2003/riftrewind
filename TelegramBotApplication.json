@@ -1,0 +1,748 @@
+{
+  "name": "TelegramBotApplication",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2656,
+        528
+      ],
+      "id": "7ae45748-48e5-4e82-a2b2-c8ed91e4d902",
+      "name": "Telegram Trigger",
+      "webhookId": "fecdd221-44f4-4644-97d9-ee06c336bb99",
+      "credentials": {
+        "telegramApi": {
+          "id": "aQGGMhDXT15DDB24",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1792,
+        352
+      ],
+      "id": "9688298d-4165-49f5-8c75-df9696345a86",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "sTZld43aJmRD4nwM",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=gameName: {{ $json.data.GameName }}#{{ $json.data.TagLine }}, roast his name ",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a roaster(you give a single like roast of a word) very smalll one."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1792,
+        144
+      ],
+      "id": "98f05a3d-8cbf-42bc-91a1-45249e0eebef",
+      "name": "NameRoaster"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output.roast }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1328,
+        144
+      ],
+      "id": "594e6e47-80df-484b-865e-932dffb8c19d",
+      "name": "Send a text message1",
+      "webhookId": "4059d77b-e140-48fb-97f1-bbfd03afce24",
+      "credentials": {
+        "telegramApi": {
+          "id": "aQGGMhDXT15DDB24",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"roast\": \"your name sounds like trash\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1648,
+        352
+      ],
+      "id": "b7929d36-03d1-45f6-ae53-00d6bebf128f",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $json.message.chat.id }}",
+        "message": "Send your gamename(the one before #) and tagline (the one after #)",
+        "responseType": "customForm",
+        "defineForm": "json",
+        "jsonOutput": "[\n  {\n    \"fieldLabel\": \"GameName\",\n    \"placeholder\": \"enter your game name\",\n    \"requiredField\": true\n  },\n  {\n    \"fieldLabel\": \"TagLine\",\n    \"placeholder\": \"enter your tagline\",\n    \"requiredField\": true\n  }\n]\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2032,
+        144
+      ],
+      "id": "95550187-8bb1-4158-9f1d-a442d366c7e9",
+      "name": "Send message and wait for response",
+      "webhookId": "3355254a-40d9-4378-a706-45e306a0f1eb",
+      "credentials": {
+        "telegramApi": {
+          "id": "aQGGMhDXT15DDB24",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Fine, I've saved it. Now stop bothering me until you have new stats to roast.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -656,
+        48
+      ],
+      "id": "cbf09e6e-f427-4af5-86fd-cd29c465bf2b",
+      "name": "Send a text message",
+      "webhookId": "fc8c9e38-a992-455d-bb8e-37cb711c73dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "aQGGMhDXT15DDB24",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Wrong Inputs: You've confused me. Congratulations, that's an achievement. Now, can you manage the /start command, or is that too complex?",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1088,
+        496
+      ],
+      "id": "5245b77c-4857-46b0-b9d2-f20aa1f54817",
+      "name": "Send a text message2",
+      "webhookId": "fc8c9e38-a992-455d-bb8e-37cb711c73dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "aQGGMhDXT15DDB24",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\"telegram_userId\": \"{{ $('Telegram Trigger').item.json.message.from.id }}\",\n  \"puuid\": \"{{ $('HTTP Request').item.json.puuid }}\",\n  \"gameName\": \"{{ $('HTTP Request').item.json.gameName }}\",\n  \"tagLine\": \"{{ $('HTTP Request').item.json.tagLine }}\"\n\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1152,
+        272
+      ],
+      "id": "d14a5f7d-0ad9-4b50-a306-06fad49e1fbc",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d631c723-f4f7-4fcd-abe9-e9db1cc43ce5",
+              "leftValue": "={{ $json.telegram_userId }}",
+              "rightValue": "={{ $('Edit Fields').item.json.telegram_userId }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "ca357af2-b851-4ab1-abab-930097a9229c",
+              "leftValue": "={{ $json.puuid }}",
+              "rightValue": "={{ $('Edit Fields').item.json.puuid }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "005bc96a-a9e0-47e7-9c51-54e255ee375e",
+              "leftValue": "={{ $json.gameName }}",
+              "rightValue": "={{ $('Edit Fields').item.json.gameName }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "559d5b92-a5f1-4f22-b77e-670ea97682a4",
+              "leftValue": "={{ $json.tagLine }}",
+              "rightValue": "={{ $('Edit Fields').item.json.tagLine }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -640,
+        -96
+      ],
+      "id": "214d8890-68b1-4002-a424-27105a04ab5b",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "users",
+        "updateKey": "=telegram_userId",
+        "fields": "telegram_userId,puuid,gameName,tagLine",
+        "upsert": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -976,
+        144
+      ],
+      "id": "2c63907d-748c-4167-980f-12f86cfcf50c",
+      "name": "Find and update documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "f2hMU3cj3J6yciNe",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "users",
+        "options": {},
+        "query": "={\n  \"telegram_userId\": \"{{ $('Telegram Trigger').item.json.message.from.id }}\"\n}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -2160,
+        576
+      ],
+      "id": "cf911e56-2b05-45da-adf4-0f85ee2e64d8",
+      "name": "Find documents1",
+      "credentials": {
+        "mongoDb": {
+          "id": "f2hMU3cj3J6yciNe",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{{ encodeURIComponent($('Send message and wait for response').item.json.data.GameName) }}/{{ encodeURIComponent($('Send message and wait for response').item.json.data.TagLine) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1360,
+        448
+      ],
+      "id": "9ab17638-3f3e-4420-95f0-813dd1a9d1b1",
+      "name": "HTTP Request",
+      "retryOnFail": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8aBSOLq2t5G4TZGT",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://sea.api.riotgames.com/lol/match/v5/matches/by-puuid/{{ $json.puuid }}/ids?start=0&count=1",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1936,
+        576
+      ],
+      "id": "e56dca11-9712-4b9f-a4e4-b638b1ff7bc5",
+      "name": "HTTP Request1",
+      "retryOnFail": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8aBSOLq2t5G4TZGT",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Cannot find Match",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2112,
+        816
+      ],
+      "id": "443a9219-6a0f-4e20-84da-0cf94a261c2f",
+      "name": "Send a text message3",
+      "webhookId": "fc8c9e38-a992-455d-bb8e-37cb711c73dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "aQGGMhDXT15DDB24",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://sea.api.riotgames.com/lol/match/v5/matches/{{ $json['0'] }}{{ $json['1'] }}{{ $json['2'] }}{{ $json['3'] }}{{ $json['4'] }}{{ $json['5'] }}{{ $json['6'] }}{{ $json['7'] }}{{ $json['8'] }}{{ $json['9'] }}{{ $json['10'] }}{{ $json['11'] }}{{ $json['12'] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1664,
+        736
+      ],
+      "id": "1e21baa3-321f-487a-9b01-1151a520f614",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8aBSOLq2t5G4TZGT",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Input provided to you is JSON containing League of Legends match data for all players.\n\n### GOAL\nFor each player, output a *roast paragraph*:\n\n| Player Data (only roastable stats) | Savage Roast |\n\n### RULES FOR DATA COLUMN\nOnly include stats that can be used as roast material — keep these if present:\n- summoner name - {{ $json.summonerName }},\n- Champion Name( champion selected for playing ) - {{ $json.championName }}\n- role / lane (TOP/MID/JUNGLE/ADC/SUPPORT) - {{ $json.teamPosition }},\n- kills - {{ $json.kills }},\n- deaths - {{ $json.deaths }},\n- assists - {{ $json.assists }}\n- KDA ratio - {{ $json.challenges.kda }}\n- gold earned - {{ $json.goldEarned }}\n- damage dealt to champions - {{ $json.magicDamageDealtToChampions }}\n- damage taken - {{ $json.totalDamageTaken }}\n- vision score - {{ $json.visionScore }}\n- wards placed - {{ $json.wardsPlaced }}\n- wards destroyed - {{ $json.wardsKilled }}\n- CS (creep score) - {{ $json.totalMinionsKilled }}\n- time dead (seconds) - {{ $json.totalTimeSpentDead }}\n- win - {{ $json.win }}\n- kill participation - {{ $json.challenges.killParticipation }}\n\nRemove boring / non-roastable info like item IDs, rune metadata, summoner spell numeric IDs, UI timestamps, etc.\n\n### RULES FOR ROAST PARAGRAPH\n- Must be *funny, savage, and witty* but NOT hateful speech targeted at real-world protected groups.\n- Directly roast their performance based on the stats.\n- Examples of tone:\n  - “Bro was playing hide-and-seek in a MOBA.”\n  - “Your vision score says you were legally blind.”\n  - “You died so much the enemy jungler has you on speed dial.”\n- Each roast should reference the stats to justify the roast.\n- If KDA is atrocious, roast hard. If KDA is good, roast ironically.\n- Avoid generic lines — every roast should be *stat-based*.\n\n### OUTPUT FORMAT (IMPORTANT)\nReturn ONLY a Roast Paragraph\n\n\n\n",
+        "options": {
+          "systemMessage": "You are a savage Esports roast commentator ruthless real hater. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -1200,
+        736
+      ],
+      "id": "e9706b08-e9f8-4c89-a16c-80a33e0f9c7e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const myPuuid = $('Find documents1').first().json['puuid'];\n\nconst results = [];\n\nfor (const item of $input.all()) {\n  const data = item.json;\n  if (!data.info?.participants) continue;\n\n  const me = data.info.participants.find(p => p.puuid === myPuuid);\n  if (me) results.push({ json: me });\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1456,
+        736
+      ],
+      "id": "aac421f2-b256-478e-9986-194b0b672d02",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        944
+      ],
+      "id": "caad7f43-f413-490c-84f6-8220b8d32e34",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "sTZld43aJmRD4nwM",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -896,
+        736
+      ],
+      "id": "9c9d8c2c-14e9-4e84-bc46-308bd36a536b",
+      "name": "Send a text message4",
+      "webhookId": "fc8c9e38-a992-455d-bb8e-37cb711c73dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "aQGGMhDXT15DDB24",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "422b5cb8-5359-43e6-b8a4-4d5a5db33597"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b34e2dbe-1a45-4a1f-897a-047c4848fd33",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/roast",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "roast"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -2464,
+        528
+      ],
+      "id": "652e52e8-c77b-4719-9cd4-21debf2fc8aa",
+      "name": "Switch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "NameRoaster",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NameRoaster": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "NameRoaster",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "NameRoaster",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Find and update documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find and update documents": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find documents1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "70be2b33-5753-4cff-85b6-e53a3bab70a0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0701a7ff27bad60b209d4ef6abd6b3e3c849b36fe683d632eb0b74035d2dcff6"
+  },
+  "id": "Wt2PnlnI8QANsbGU",
+  "tags": []
+}
